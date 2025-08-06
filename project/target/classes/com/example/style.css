@@ -1,0 +1,22 @@
+/* style.css */
+
+.new-message {
+    -fx-border-color: yellow;
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+    -fx-animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        -fx-border-color: yellow;
+    }
+
+    50% {
+        -fx-border-color: transparent;
+    }
+
+    100% {
+        -fx-border-color: yellow;
+    }
+}

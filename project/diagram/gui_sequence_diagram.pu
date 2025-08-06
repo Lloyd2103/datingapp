@@ -1,0 +1,39 @@
+@startuml gui_sequence_diagram
+actor User
+participant Main
+participant LoginController
+participant ChatController
+participant Server
+participant ClientHandler
+
+== Đăng nhập ==
+User -> Main: Khởi động ứng dụng
+Main -> LoginController: Hiển thị màn hình đăng nhập
+User -> LoginController: Nhập username, password và nhấn "Login"
+LoginController -> Server: Gửi yêu cầu LOGIN
+Server -> ClientHandler: Xử lý đăng nhập
+ClientHandler -> Server: Trả về kết quả LOGIN_SUCCESS/LOGIN_FAILED
+Server -> LoginController: Phản hồi kết quả đăng nhập
+alt Đăng nhập thành công
+    LoginController -> Main: Chuyển sang màn hình chat
+    Main -> ChatController: Hiển thị giao diện chat
+else Đăng nhập thất bại
+    LoginController -> User: Hiển thị thông báo lỗi
+end
+
+== Gửi tin nhắn ==
+User -> ChatController: Nhập và gửi tin nhắn
+ChatController -> Server: Gửi tin nhắn (BROADCAST/PRIVATE)
+Server -> ClientHandler: Xử lý và chuyển tiếp tin nhắn
+ClientHandler -> Server: Gửi tin nhắn đến các client liên quan
+
+== Nhận tin nhắn ==
+Server -> ChatController: Gửi tin nhắn mới từ server
+ChatController -> User: Hiển thị tin nhắn mới
+
+== Thoát ==
+User -> ChatController: Nhấn "Exit"
+ChatController -> Server: Gửi lệnh EXIT
+Server -> ClientHandler: Xử lý thoát
+ChatController -> Main: Đóng giao diện chat
+@enduml

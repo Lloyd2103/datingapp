@@ -1,0 +1,89 @@
+@startuml sequence_diagram
+actor Client
+participant LoginController
+participant ConnectionHandler
+participant UserManager
+participant ClientHandler
+participant RoomManager
+participant Logger
+
+== Login Flow ==
+Client -> LoginController: Enter username and password
+LoginController -> ConnectionHandler: LOGIN|username|password
+ConnectionHandler -> UserManager: isUserExists(username)
+alt User exists
+    UserManager -> ConnectionHandler: true
+    ConnectionHandler -> UserManager: login(username, password)
+    alt Login successful
+        UserManager -> ConnectionHandler: true
+        ConnectionHandler -> ClientHandler: Create ClientHandler(socket, clients, username, roomManager)
+        ConnectionHandler -> Client: LOGIN_SUCCESS
+        ClientHandler -> RoomManager: Load user rooms
+        ClientHandler -> Logger: Log user login
+    else Login failed
+        UserManager -> ConnectionHandler: false
+        ConnectionHandler -> Client: LOGIN_FAILED
+    end
+else User does not exist
+    UserManager -> ConnectionHandler: false
+    ConnectionHandler -> Client: LOGIN_FAILED
+end
+
+== Registration Flow ==
+Client -> LoginController: Enter username and password
+LoginController -> ConnectionHandler: REGISTER|username|password
+ConnectionHandler -> UserManager: isUserExists(username)
+alt User does not exist
+    UserManager -> ConnectionHandler: false
+    ConnectionHandler -> UserManager: register(username, password)
+    UserManager -> ConnectionHandler: Registration successful
+    ConnectionHandler -> Client: REGISTER_SUCCESS
+else User exists
+    UserManager -> ConnectionHandler: true
+    ConnectionHandler -> Client: REGISTER_FAILED
+end
+
+== Join Room ==
+Client -> ClientHandler: /join room1
+ClientHandler -> RoomManager: isRoomExists("room1")
+alt Room exists
+    RoomManager -> ClientHandler: true
+    ClientHandler -> RoomManager: addUser("room1", username)
+    RoomManager -> Logger: logRoomMessage("room1", username, "joined the room")
+    Logger -> RoomManager: Acknowledge
+    ClientHandler -> Client: "You have joined the room: room1"
+else Room does not exist
+    RoomManager -> ClientHandler: false
+    ClientHandler -> Client: "Room does not exist."
+end
+
+== Send Message to Room ==
+Client -> ClientHandler: BROADCAST|room1|Hello everyone!
+ClientHandler -> RoomManager: getRoom("room1").getUsers()
+loop For each user in room
+    ClientHandler -> Client: Send message ("BROADCAST|username|room1|Hello everyone!")
+end
+ClientHandler -> Logger: logRoomMessage("room1", username, "Hello everyone!")
+Logger -> ClientHandler: Acknowledge
+
+== Send Private Message ==
+Client -> ClientHandler: PRIVATE|user2|Hello!
+ClientHandler -> ClientHandler: Check if user2 is online
+alt User is online
+    ClientHandler -> Client: Send message ("PRIVATE|username|user2|Hello!")
+    ClientHandler -> Logger: logPrivateMessage(username, user2, "Hello!")
+    Logger -> ClientHandler: Acknowledge
+else User is offline
+    ClientHandler -> Client: "User user2 is not online."
+end
+
+== Exit Chat ==
+Client -> ClientHandler: /exit
+ClientHandler -> RoomManager: removeUser("room1", username)
+RoomManager -> Logger: logRoomMessage("room1", username, "left the room")
+Logger -> RoomManager: Acknowledge
+ClientHandler -> Client: "Exiting chat..."
+ClientHandler -> ConnectionHandler: Remove client from active list
+ClientHandler -> RoomManager: Save room state
+ClientHandler -> Logger: Log user logout
+@enduml

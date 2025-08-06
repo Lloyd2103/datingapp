@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="anchorPane" prefHeight="300.0" prefWidth="511.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.gui.LoginController">
+    
+    <VBox alignment="CENTER" prefHeight="300.0" prefWidth="400.0" spacing="20.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+        
+        <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Đăng nhập" />
+        
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="250.0" />
+            </columnConstraints>
+            
+            <rowConstraints>
+                <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            
+            <Label text="Tên đăng nhập:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            
+            <Label text="Mật khẩu:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+        </GridPane>
+
+        <Label fx:id="errorLabel" textFill="red" style="-fx-font-size: 14px;" />
+
+        <HBox alignment="CENTER" spacing="20.0">
+            <Button fx:id="loginButton" onAction="#handleLogin" prefHeight="35.0" prefWidth="120.0"
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" text="Đăng nhập" />
+            
+            <Button fx:id="handleRegister" onAction="#handleRegister" prefHeight="35.0" prefWidth="120.0"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" text="Đăng ký" />
+        </HBox>
+    </VBox>
+</AnchorPane>

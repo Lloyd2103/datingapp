@@ -1,0 +1,72 @@
+@startuml activity_diagram
+start
+
+:Initialize socket, input, and output streams;
+:Broadcast user and room lists;
+
+repeat
+    :Read command from client;
+    if (Command == "/exit") then (yes)
+        :Send "Exiting chat..." to client;
+        :Remove user from active clients;
+        :Broadcast updated user and room lists;
+        stop
+    else (no)
+        if (Command == "/users") then (yes)
+            :Send list of online users to client;
+        else (no)
+            if (Command == "/rooms") then (yes)
+                :Send list of available rooms to client;
+            else (no)
+                if (Command starts with "/create ") then (yes)
+                    :Extract room name;
+                    :Add room to RoomManager;
+                    :Broadcast updated room list;
+                else (no)
+                    if (Command starts with "/join ") then (yes)
+                        :Extract room name;
+                        if (Room exists?) then (yes)
+                            if (User already in room?) then (yes)
+                                :Send "You are already in this room" to client;
+                            else (no)
+                                :Add user to room;
+                                :Broadcast "User joined the room" to room;
+                            endif
+                        else (no)
+                            :Send "Room does not exist" to client;
+                        endif
+                    else (no)
+                        if (Command starts with "/users_room ") then (yes)
+                            :Extract room name;
+                            :Send list of users in the room to client;
+                        else (no)
+                            if (Command == "/private") then (yes)
+                                :Prompt client to choose a user to chat with;
+                                :Handle private chat session;
+                            else (no)
+                                if (Command starts with "BROADCAST|") then (yes)
+                                    :Extract room name and message;
+                                    :Send message to all users in the room;
+                                    :Log message to Logger;
+                                else (no)
+                                    if (Command starts with "PRIVATE|") then (yes)
+                                        :Extract target user and message;
+                                        if (Target user is online?) then (yes)
+                                            :Send private message to target user;
+                                            :Log private message to Logger;
+                                        else (no)
+                                            :Send "User is not online" to client;
+                                        endif
+                                    else (no)
+                                        :Send "Unknown command" to client;
+                                    endif
+                                endif
+                            endif
+                        endif
+                    endif
+                endif
+            endif
+        endif
+    endif
+repeat while (true)
+@enduml

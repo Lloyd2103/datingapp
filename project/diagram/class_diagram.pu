@@ -1,0 +1,194 @@
+@startuml class_diagram
+package com.example.gui {
+    class Main {
+        + start(primaryStage: Stage): void
+        + main(args: String[]): void
+    }
+
+    class LoginController {
+        - Stage stage
+        - Scene scene
+        - Parent root
+        - TextField usernameField
+        - TextField passwordField
+        + initialize(): void
+        + handleLogin(event: ActionEvent): void
+        + handleRegister(event: ActionEvent): void
+        - switchToChatScene(event: ActionEvent, username: String, socket: Socket): void
+        - showAlert(alertType: AlertType, title: String, message: String): void
+    }
+
+    class ChatController {
+        - TextField textfield_message
+        - TextField search_field
+        - VBox vbox_messages
+        - Button send_button
+        - Button exit_button
+        - ScrollPane scrollPane_main
+        - ScrollPane user_room_scrollpane
+        - VBox user_room_list
+        - Label labelName
+        - String currentScreen
+        - String username
+        - Socket socket
+        - BufferedReader in
+        - PrintWriter out
+        - Map<String, VBox> chatHistories
+        + initialize(location: URL, resources: ResourceBundle): void
+        + initData(username: String, socket: Socket): void
+        - receiveMessages(): void
+        - filterList(searchText: String): void
+        + sendMessage(event: ActionEvent): void
+        + exit(event: ActionEvent): void
+        + addReceiveLabel(message: String, vBox: VBox): void
+        + addSentLabel(message: String, vBox: VBox): void
+    }
+}
+
+package com.example.server {
+    class Server {
+        + main(args: String[]): void
+    }
+
+    class ConnectionHandler implements Runnable {
+        - Socket socket
+        - BufferedReader in
+        - PrintWriter out
+        - Map<String, PrintWriter> clients
+        - UserManager userManager
+        - RoomManager roomManager
+        + run(): void
+    }
+
+    class ClientHandler implements Runnable {
+        - Socket socket
+        - BufferedReader in
+        - PrintWriter out
+        - Map<String, PrintWriter> clients
+        - RoomManager roomManager
+        - String name
+        + run(): void
+        + menuCommand(): void
+        + getUsername(): String
+        + addRoom(roomName: String): void
+        + removeRoom(roomName: String): void
+        + joinRoom(roomName: String, name: String): void
+        + leaveRoom(roomName: String, name: String): void
+        + sendMessageToAll(message: String): void
+        + sendMessageToUser(username: String, message: String): void
+        + sendMessageToRoom(roomName: String, message: String): void
+        + chatloop(roomName: String, name: String): void
+        + chooseUsertoChat(): void
+        + readRoomHistory(roomName: String): void
+        + readPrivateHistory(otherUser: String): void
+        + getUsersAndRooms(): void
+        + onlineUsers(): void
+        + allRooms(): void
+        + close(): void
+    }
+
+    class Logger {
+        + logRoomMessage(room: String, sender: String, message: String): void
+        + logPrivateMessage(sender: String, receiver: String, message: String): void
+        + readRoomLog(roomName: String): String
+        + readPrivateLog(user1: String, user2: String): String
+    }
+}
+
+package com.example.manager {
+    interface IUserManager {
+        + login(username: String, password: String): boolean
+        + register(username: String, password: String): boolean
+        + isUserExists(username: String): boolean
+    }
+
+    class UserManager implements IUserManager {
+        - List<User> users
+        - String filepath
+        + addUser(username: String, password: String): void
+        + removeUser(username: String): void
+        + getAllUsers(): List<User>
+        + login(username: String, password: String): boolean
+        + register(username: String, password: String): boolean
+        + loadUsersFromFile(): List<User>
+        + saveUsersToFile(): void
+        + isUserExists(username: String): boolean
+    }
+
+    interface IRoomManager {
+        + addRoom(roomName: String): void
+        + removeRoom(roomName: String): void
+        + addUser(roomName: String, name: String): void
+        + removeUser(roomName: String, name: String): void
+        + getRoom(roomName: String): Room
+        + getAllRooms(): String
+        + isRoomExists(roomName: String): boolean
+    }
+
+    class RoomManager implements IRoomManager {
+        - List<Room> rooms
+        - String filepath
+        + addRoom(roomName: String): void
+        + removeRoom(roomName: String): void
+        + addUser(roomName: String, name: String): void
+        + removeUser(roomName: String, name: String): void
+        + getRoom(roomName: String): Room
+        + getAllRooms(): String
+        + isRoomExists(roomName: String): boolean
+        + loadRoomsFromFile(): void
+        + saveRoomsToFile(): void
+    }
+}
+
+package com.example.object {
+    class User {
+        - String username
+        - String password
+        + User(username: String, password: String)
+        + getUsername(): String
+        + getPassword(): String
+        + setUsername(username: String): void
+        + setPassword(password: String): void
+    }
+
+    class Room {
+        - String room_name
+        - List<String> users
+        + Room(room_name: String)
+        + getRoomName(): String
+        + setRoomName(room_name: String): void
+        + addUser(user: String): void
+        + removeUser(user: String): void
+        + getUsers(): List<String>
+        + isUserInRoom(user: String): boolean
+    }
+}
+
+package com.example.client {
+    class Client {
+        + main(args: String[]): void
+    }
+
+    class MessageListener {
+        - BufferedReader in
+        + MessageListener(in: BufferedReader)
+        + run(): void
+    }
+}
+
+Main --> LoginController : Loads
+LoginController --> ChatController : Switches to
+LoginController --> ConnectionHandler: Uses
+
+ChatController --> ClientHandler : Uses
+ConnectionHandler --> ClientHandler : Creates
+ClientHandler --> RoomManager : Manages rooms
+ClientHandler --> Logger : Logs messages
+RoomManager --> Room : Contains
+UserManager --> User : Manages
+Server --> ConnectionHandler : Uses
+Client --> MessageListener : Uses
+UserManager ..|> IUserManager
+RoomManager ..|> IRoomManager
+
+@enduml

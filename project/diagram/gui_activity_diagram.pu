@@ -1,0 +1,70 @@
+@startuml gui_activity_diagram
+start
+
+:User mở ứng dụng;
+:Hiển thị màn hình đăng nhập;
+
+partition "Login/Register" {
+    if (User nhấn "Login") then (yes)
+        :Lấy username và password;
+        :Kiểm tra dữ liệu nhập;
+        if (Hợp lệ?) then (yes)
+            :Gửi yêu cầu LOGIN tới server;
+            :Chờ phản hồi từ server;
+            if (Server trả về LOGIN_SUCCESS) then (yes)
+                :Chuyển sang màn hình chat;
+            else (no)
+                :Hiển thị thông báo "Đăng nhập thất bại";
+            endif
+        else (no)
+            :Hiển thị lỗi nhập liệu;
+        endif
+    else (no)
+        if (User nhấn "Register") then (yes)
+            :Lấy username và password;
+            :Kiểm tra dữ liệu nhập;
+            if (Hợp lệ?) then (yes)
+                :Gửi yêu cầu REGISTER tới server;
+                :Chờ phản hồi từ server;
+                if (Server trả về REGISTER_SUCCESS) then (yes)
+                    :Hiển thị thông báo "Đăng ký thành công";
+                else (no)
+                    :Hiển thị thông báo "Đăng ký thất bại";
+                endif
+            else (no)
+                :Hiển thị lỗi nhập liệu;
+            endif
+        else (no)
+            stop
+        endif
+    endif
+}
+
+partition "Chat" {
+    :Hiển thị màn hình chat;
+    repeat
+        if (User gửi tin nhắn) then (yes)
+            :Lấy nội dung tin nhắn;
+            if (Không rỗng?) then (yes)
+                :Gửi tin nhắn tới server;
+                :Hiển thị tin nhắn ở cửa sổ chat;
+            else (no)
+                :Hiển thị lỗi "Tin nhắn trống";
+            endif
+        else (no)
+            if (User chọn thoát) then (yes)
+                :Gửi lệnh EXIT tới server;
+                :Đóng màn hình chat;
+                stop
+            else (no)
+                if (Nhận tin nhắn từ server) then (yes)
+                    :Hiển thị tin nhắn mới;
+                else (no)
+                    :Chờ hành động tiếp theo;
+                endif
+            endif
+        endif
+    repeat while (true)
+}
+
+@enduml
